@@ -1,21 +1,16 @@
+//DOM
 const statusDisplay = document.querySelector('.game--status');
 const restartButton = document.querySelector('.game--restart');
 
+//variables
 let gameActive = true;
 let players = [
-    {value: "X", name:"tu"},
-    {value: "O", name: "computador"}  
+    {value: "X", name:"You"},
+    {value: "O", name: "Computer"}  
 ]
 let firstPlayer = 0;
 let currentPlayer = firstPlayer;
 let gameState = ["", "", "", "", "", "", "", "", ""];
-
-const winningMessage = () => players[currentPlayer].name === 'computador' ?  `Perdeste` : `Ganhaste. Parabéns!`;
-const drawMessage = () => `Empatado`;
-const currentPlayerTurn = () => `${players[currentPlayer].name} a jogar`;
-
-statusDisplay.innerHTML = currentPlayerTurn();
-
 const winningConditions = [
     [0, 1, 2],
     [3, 4, 5],
@@ -26,85 +21,10 @@ const winningConditions = [
     [0, 4, 8],
     [2, 4, 6]
 ];
+const bot_playing_time = 800 // (ms)
 
-function handleCellPlayed(clickedCell, clickedCellIndex) {
-    gameState[clickedCellIndex] = players[currentPlayer].value;
-    clickedCell.innerHTML = players[currentPlayer].value;
-}
 
-function handlePlayerChange() {
-    currentPlayer = currentPlayer === 0 ? 1 : 0;
-    statusDisplay.innerHTML = currentPlayerTurn();
-    
-    //bot a jogar
-    if(currentPlayer === 1){
-        let nextMove = Algoritm()
-        setTimeout(()=>{
-            document.querySelector('.game--container').children[nextMove].click()
-        }, 1000)
-    }
-}
-
-function handleResultValidation() {
-    let roundWon = false;
-    for (let i = 0; i <= 7; i++) {
-        const winCondition = winningConditions[i];
-        let a = gameState[winCondition[0]];
-        let b = gameState[winCondition[1]];
-        let c = gameState[winCondition[2]];
-        if (a === '' || b === '' || c === '') {
-            continue;
-        }
-        if (a === b && b === c) {
-            roundWon = true;
-            break
-        }
-    }
-
-    if (roundWon) {
-        statusDisplay.innerHTML = winningMessage();
-        gameActive = false;
-        restartButton.style.display = "inline-block";
-        return;
-    }
-
-    let roundDraw = !gameState.includes("");
-    if (roundDraw) {
-        statusDisplay.innerHTML = drawMessage();
-        gameActive = false;
-        restartButton.style.display = "inline-block";
-        return;
-    }
-
-    handlePlayerChange();
-}
-
-function handleCellClick(clickedCellEvent) {
-    const clickedCell = clickedCellEvent.target;
-    const clickedCellIndex = parseInt(clickedCell.getAttribute('data-cell-index'));
-
-    if (gameState[clickedCellIndex] !== "" || !gameActive) {
-        return;
-    }
-
-    handleCellPlayed(clickedCell, clickedCellIndex);
-    handleResultValidation();
-}
-
-function handleRestartGame() {
-    gameActive = true;
-    //firstPlayer = firstPlayer === 0 ? 1 : 0;
-    firstPlayer = 0
-    currentPlayer = firstPlayer; 
-    gameState = ["", "", "", "", "", "", "", "", ""];
-    statusDisplay.innerHTML = currentPlayerTurn();
-    document.querySelectorAll('.cell').forEach(cell => cell.innerHTML = "");
-    restartButton.style.display = "none";
-}
-
-document.querySelectorAll('.cell').forEach(cell => cell.addEventListener('click', handleCellClick));
-restartButton.addEventListener('click', handleRestartGame);
-
+//algortim to return the next move
 function Algoritm(){
     let wining = false;
     let losing = false;
@@ -170,3 +90,89 @@ function Algoritm(){
     //ocupar um espaço livre
     for(i=0; i<9; i++) if(gameState[i]==="") return i 
 }
+
+//display messages
+const winningMessage = () => players[currentPlayer].value === 'O' ?  `&#128532 You Lose` : `&#128551 You Win. Congradulations!`;
+const drawMessage = () => `&#128527 Tie`;
+const currentPlayerTurn = () => `${players[currentPlayer].name} playing...`;
+
+statusDisplay.innerHTML = currentPlayerTurn();
+
+//game functions
+function handleCellPlayed(clickedCell, clickedCellIndex) {
+    gameState[clickedCellIndex] = players[currentPlayer].value;
+    clickedCell.innerHTML = players[currentPlayer].value;
+}
+function handlePlayerChange() {
+    currentPlayer = currentPlayer === 0 ? 1 : 0;
+    statusDisplay.innerHTML = currentPlayerTurn();
+    
+    //bot a jogar
+    if(currentPlayer === 1){
+        gameActive = false;
+        let nextMove = Algoritm()
+        setTimeout(()=>{
+            document.querySelector('.game--container').children[nextMove].click()
+            gameActive = true;
+        }, bot_playing_time)
+    }
+}
+function handleResultValidation() {
+    let roundWon = false;
+    for (let i = 0; i <= 7; i++) {
+        const winCondition = winningConditions[i];
+        let a = gameState[winCondition[0]];
+        let b = gameState[winCondition[1]];
+        let c = gameState[winCondition[2]];
+        if (a === '' || b === '' || c === '') {
+            continue;
+        }
+        if (a === b && b === c) {
+            roundWon = true;
+            break
+        }
+    }
+
+    if (roundWon) {
+        statusDisplay.innerHTML = winningMessage();
+        gameActive = false;
+        restartButton.style.display = "inline-block";
+        return;
+    }
+
+    let roundDraw = !gameState.includes("");
+    if (roundDraw) {
+        statusDisplay.innerHTML = drawMessage();
+        gameActive = false;
+        restartButton.style.display = "inline-block";
+        return;
+    }
+
+    handlePlayerChange();
+}
+function handleCellClick(clickedCellEvent) {
+    const clickedCell = clickedCellEvent.target;
+    const clickedCellIndex = parseInt(clickedCell.getAttribute('data-cell-index'));
+
+    if (gameState[clickedCellIndex] !== "" || !gameActive) {
+        return;
+    }
+
+    handleCellPlayed(clickedCell, clickedCellIndex);
+    handleResultValidation();
+}
+function handleRestartGame() {
+    gameActive = true;
+    //firstPlayer = firstPlayer === 0 ? 1 : 0;
+    firstPlayer = 0
+    currentPlayer = firstPlayer; 
+    gameState = ["", "", "", "", "", "", "", "", ""];
+    statusDisplay.innerHTML = currentPlayerTurn();
+    document.querySelectorAll('.cell').forEach(cell => cell.innerHTML = "");
+    restartButton.style.display = "none";
+}
+
+document.querySelectorAll('.cell').forEach(cell => cell.addEventListener('click', handleCellClick));
+restartButton.addEventListener('click', handleRestartGame);
+
+
