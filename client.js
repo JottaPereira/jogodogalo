@@ -94,7 +94,7 @@ function Algoritm(){
 //display messages
 const winningMessage = () => players[currentPlayer].value === 'O' ?  `&#128532 You Lose` : `&#128551 You Win. Congradulations!`;
 const drawMessage = () => `&#128527 Tie`;
-const currentPlayerTurn = () => `${players[currentPlayer].name} playing...`;
+const currentPlayerTurn = () => `${players[currentPlayer].name} playing`;
 
 statusDisplay.innerHTML = currentPlayerTurn();
 
@@ -112,8 +112,8 @@ function handlePlayerChange() {
         gameActive = false;
         let nextMove = Algoritm()
         setTimeout(()=>{
-            document.querySelector('.game--container').children[nextMove].click()
             gameActive = true;
+            document.querySelector('.game--container').children[nextMove].click()
         }, bot_playing_time)
     }
 }
