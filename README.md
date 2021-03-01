@@ -4,7 +4,7 @@
 
 If you think you can beat it, try it out:
 
-[play here](https://www.jookstar.com)
+**[play here](https://theperas.github.io/Tic-Tac-Toe_Algoritm/)**
 
 ## Algoritm
 The algoritm was taken in the book of Pedro Domingos, "The Master Algorithm" and it's the following on
